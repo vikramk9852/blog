@@ -1,0 +1,96 @@
+
+  .editor {
+    margin: 0 auto;
+    padding: 0 15px;
+
+    &__container{
+      max-width: 900px;
+      margin: 30px auto;
+    }
+
+    // &__leftpane, &__rightpane{
+    //   margin: 20px 0;
+    // }
+
+    &__rightpane{
+      //testing purpose
+      display: none;
+    }
+
+    &__title{
+        input{
+            font-size: 35px;
+            height: 70px;
+        }
+    }
+
+    &__avatar{
+      margin-top: 1em;
+      input{
+        display: table;
+      }
+    }
+
+    &__button{
+        margin: 0 0 1em 0;
+    }
+    &__select__tag{
+        margin: 1em 0;
+    }
+
+    &__preview{
+        // &__placeholder{
+        //   position: fixed;
+        //   top: 50%;
+        //   transform: translate(50%, -50%);
+        // }
+        p{
+            margin: 0;
+        }
+        img{
+          max-width: 100%;
+          max-height: 100%;
+        }
+    }
+  }
+  
+  .ql {
+
+    &-toolbar{
+      position: fixed;
+      z-index: 1;
+      top: 5%;
+      background: white;    
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+    }
+    &-container{
+      border-radius: 0.5em;
+      border-top: 1px solid #ccc !important;
+      background: #fefcfc;
+      min-height: 400px;
+    }
+  }
+  
+  .ql-container {
+    height: 20em;
+  }
+
+  .editor__close__icon:hover{
+    color: gray;
+    cursor: pointer;
+    opacity: 0.6;
+    transform: scale(1.05);
+}
+  
+  .themeSwitcher {
+    margin-top: 0.5em;
+    font-size: small;
+  }
+
+@media(max-width: 720px){
+  .editor{
+    margin-top: 5rem;
+  }
+}

@@ -1,0 +1,81 @@
+
+.storylist{
+    max-width: 50rem;
+    margin: 0 auto;
+    padding: 0 2em 2em 2em;
+    &__row{
+        margin: 1em 0;
+        border-radius: 20px;
+        // border: 1px solid gray;
+
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        height: 150px;
+    }
+    &__image{
+        overflow: hidden;
+        border-radius: 0 20px 20px 0;
+        // // height: 130px;
+        // // width: 134px;
+        img{
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            height: 150px;
+    }
+    cursor: pointer;
+        // width: 152px;
+    }
+    &__box{
+        // height: 155px;
+        padding: 1em 1.1em 1em 1em;
+
+        p{
+            margin-bottom: 0;
+        }
+        // padding-right: 2.5rem;
+        &__heading{
+            // font-size: 1.5em;
+            // line-height: 0;
+            // vertical-align: middle;
+            // font-weight: bold;
+            // color: black;
+            // margin-bottom: 0.8em;
+            cursor: pointer;
+        }
+        &__description{
+            // font-size: 1em;
+            // display: -webkit-box;
+            // margin-bottom: 0.8em;
+            // -webkit-line-clamp: 2;
+            // -webkit-box-orient: vertical;
+            // overflow: hidden;
+            // text-overflow: ellipsis;
+            cursor: pointer;
+        }
+        &__category{
+            margin-bottom: 1em 0 0.3em 0;
+        }
+        &__pinicon{
+            // position: absolute;
+            // bottom: 1.5em;
+            // right: 2em;
+            i{
+                font-size: 20px;
+            }
+        }
+    }
+}
+
+@media(max-width: 491px){
+    .storylist{
+        padding: 0 1em 1em 1em;
+        &__row{
+            height: 150px;
+        }
+        &__image{
+            img{
+                height: 150px;
+            }
+        }
+    }
+}

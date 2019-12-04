@@ -1,0 +1,5 @@
+node_modules
+.firebase
+build
+yarn.lock
+src/app/utils/firebase/firebase-config.json

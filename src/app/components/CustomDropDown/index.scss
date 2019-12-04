@@ -1,0 +1,68 @@
+
+.logo{
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    padding-left: 56px;
+    font-size: 56px;
+    cursor: default;
+}
+
+.leftMenu{
+    height: 100vh;
+    width: 170px;
+    overflow-y: auto;
+    min-width: 170px;
+    float: left;
+}
+
+.item, .itemSelected{
+    color: gray;
+    padding-bottom: 0;
+    margin: 0;
+    font-size: 15px;
+    height: 59px;
+    line-height: 59px;
+    &:active{
+        font-size: 14.5px;
+    }
+    .menuIcon{
+        font-size: 17px;
+        margin-right: 12px;
+        margin-left: 22px;
+        &:active{
+            font-size: 16.5px;
+        }
+    }
+    .bottomItems{
+        margin-right: 12px;
+        margin-left: 22px;
+    }
+}
+
+.settings{
+    margin-top: 200px;
+}
+
+.itemSelected{        
+    background-color: #17191b;
+    color: #f3f3f3 ;
+    cursor: default;
+    &:active{
+        font-size: 15px;
+    }
+}
+
+.itemSelected:hover{
+    color: #f3f3f3 !important;
+}
+
+.item:hover{
+    color: #cfcfcf;
+}
+
+@media(max-width: 890px){
+    .leftMenu{
+        display: none;
+    }
+}
+

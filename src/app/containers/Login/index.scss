@@ -1,0 +1,23 @@
+.login{
+    &__form{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        margin: 0 auto;
+        &__heading{
+            margin-bottom: 2em;
+        }
+        &__forgot{
+            float: right;
+        }
+        &__button{
+            width: 100%;
+        }
+        &__goback{
+            margin-top: 1em;
+            margin-bottom: 0.2em;
+        }
+    }
+}

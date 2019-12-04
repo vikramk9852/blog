@@ -1,0 +1,17 @@
+.layout{
+    height: 100vh;
+    // height:100%;
+}
+.ant-layout{
+    background-color: transparent;
+}
+.ui-container{
+    // height:90vh;
+    // height:calc(100% - 6.4rem);
+    // overflow-y: auto;
+    scroll-behavior: smooth;
+    position: relative;
+    // background-color: #F8F8FD;    
+    // margin-top:6.4rem;
+}
+
