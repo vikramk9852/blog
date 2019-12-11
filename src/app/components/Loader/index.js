@@ -7,8 +7,8 @@ class Loader extends Component {
 
     render() {
         return (
-            <div class="drawing" id="loading">
-                <div class="loading-dot"></div>
+            <div className="drawing" id="loading">
+                <div className="loading-dot"></div>
             </div>
         )
     }

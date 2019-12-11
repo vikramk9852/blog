@@ -13,9 +13,11 @@ import Profile from '../containers/Profile';
 import SignIn from '../containers/Signup';
 import Login from '../containers/Login';
 import StoryListing from '../containers/StoryListing';
-import './index.scss';
 import Loader from '../components/Loader';
 import Firebase from '../utils/firebase';
+import './index.scss';
+
+import Test from '../components/Editor/test';
 
 const adminPath = ['/profile', '/editor', '/admin'];
 const headerPath = adminPath;
@@ -87,6 +89,8 @@ class AppRouter extends React.Component {
 										<Route path='/signin' component={SignIn} />
 										<Route path='/login' component={Login} />
 										<Route path='/cropimage' component={CropImage} />
+
+										<Route path='/test' component={Test} />
 									</Switch >
 								}
 							</Content>

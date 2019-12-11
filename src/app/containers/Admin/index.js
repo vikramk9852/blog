@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Menu, message, Modal, Button, Affix } from 'antd';
+import { Row, Col, Menu, message, Modal, Button, Icon } from 'antd';
 import ReactHtmlParser from 'react-html-parser';
 import Loader from '../../components/Loader';
 import CustomMenu from '../../components/CustomDropDown';
@@ -126,7 +126,6 @@ class Stories extends Component {
                 break;
             case "2":
                 this.setState({ switchTabLoader: true }, () => {
-                    debugger;
                     let storyId = this.state.blogData.id;
                     let newPath = `drafts/${blogCategory}/${storyId}`, oldPath = `published/${blogCategory}/${storyId}`;
                     if (this.state.currentTab === "drafts") {
@@ -151,6 +150,10 @@ class Stories extends Component {
         this.setState({ currentTab: e.key, switchTabLoader: true }, () => {
             this.fetchData();
         });
+    }
+
+    filterStories = (e) => {
+        console.log(e);
     }
 
     render() {
@@ -180,6 +183,15 @@ class Stories extends Component {
                             </Menu.Item>
                             <Menu.Item key="drafts">
                                 Drafts
+                            </Menu.Item>
+                            <Menu.Item key="filter" disabled={true}>
+                                <CustomMenu
+                                    handleClick={this.filterStories}
+                                    menuItem={['lifestyle', 'beauty', 'travel']}
+                                    menuHolder="icon"
+                                    iconType="filter"
+                                    iconSize="13px"
+                                />
                             </Menu.Item>
                         </Menu>
                         {/* </Affix> */}

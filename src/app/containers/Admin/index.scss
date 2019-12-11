@@ -31,10 +31,14 @@
         margin-bottom: 2em;
     }
 
-    // &__allstories{
-    //   height: 60vh;
-    //   overflow-y: auto;
-    // }
+    &__allstories{
+      height: 60vh;
+      overflow-y: auto;
+    }
+
+    &__filtericon{
+      cursor: pointer;
+    }
 
     &__contents{
         margin: 0 4em;
@@ -76,11 +80,18 @@
         box-shadow: none !important;
       }
     }
+    &-menu{
+      &-item{
+        &-disabled{
+          cursor: auto;
+        }
+      }
+    }
   }
 }
 
 @media(max-width: 720px){
   .stories__contents{
-    margin: 0 30px;
+    margin: 0 20px;
   }
 }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ReactQuill, { Quill } from 'react-quill'; // ES6
 import 'react-quill/dist/quill.snow.css'; // ES6
-import { ImageResize } from 'quill-image-resize-module';
 import Utils from '../../utils/utils';
 import './index.scss';
 import { Input, Button, Select, Row, Col, message } from 'antd';
@@ -10,7 +9,6 @@ import CropImage from '../../components/CropImage';
 import Firebase from '../../utils/firebase';
 const QuillImage = Quill.import('formats/image');
 
-Quill.register('modules/imageResize', ImageResize);
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -34,9 +32,6 @@ class Editor extends Component {
         handlers: {
           'image': this.imageHandler
         }
-      },
-      imageResize: {
-        displaySize: true,
       }
     }
     this.formats = [
@@ -54,7 +49,6 @@ class Editor extends Component {
       showLoader: true,
       title: "",
       toUpdate: false,
-      avatarAvailable: false,
       avatarUrl: "",
       croppedImageUrl: "",
       croppedImageFile: "",
@@ -82,7 +76,7 @@ class Editor extends Component {
           publishDate: story.blog_publish_date,
           description: story.blog_description,
           storyId: storyId,
-          croppedImageUrl: story.blog_avatar_url,
+          avatarUrl: story.blog_avatar_url,
           toUpdate: true,
           blogState: blogState,
           showLoader: false
@@ -196,7 +190,7 @@ class Editor extends Component {
 
   handleSubmit = (action) => {
     let editorText = this.state.editorHtml;
-    if (!this.state.croppedImageUrl) {
+    if (!this.state.avatarUrl) {
       message.error("Please upload avatar file for this story");
       return;
     }
@@ -329,10 +323,7 @@ class Editor extends Component {
 
   render() {
     const cropDimension = {
-      x: 10,
-      y: 10,
-      width: 180,
-      height: 180,
+      aspect: 16 / 15
     }
     return (
       <div>

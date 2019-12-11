@@ -1,13 +1,125 @@
-// let str = `<p><img src="blob:http://localhost:3000/55904086-254f-4917-9022-aa14b7bde03e"></p><p><br></p><p><img src="blob:http://localhost:3000/6921b6d5-8340-4b37-838f-bfe0cd9589de"></p><p><br></p><p><img src="blob:http://localhost:3000/54f4b926-5519-417d-9d89-feb2549ad245"> </p>`
-// let urls = [], rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
+import React from 'react';
+import Particles from 'react-particles-js';
 
-var m,
-    urls = [],
-    str = '<img src="http://site.org/one.jpg />\n <img src="http://site.org/two.jpg />',
-    rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
 
-while (m = rex.exec(str)) {
-    urls.push(m[1]);
+class Test extends React.Component {
+    render() {
+        return (
+            <Particles
+                params={{
+                    "particles": {
+                        "number": {
+                            "value": 500,
+                            "limit": 2000,
+                            "density": {
+                                "enable": true,
+                                "value_area": 8000
+                            }
+                        },
+                        "color": {
+                            "value": "#ffffff"
+                        },
+                        "shape": {
+                            "type": "circle",
+                            "stroke": {
+                                "width": 0,
+                                "color": "#000000"
+                            },
+                            "polygon": {
+                                "nb_sides": 5
+                            },
+                            "image": {
+                                "src": "img/github.svg",
+                                "width": 100,
+                                "height": 100
+                            }
+                        },
+                        "opacity": {
+                            "value": 0.5,
+                            "random": false,
+                            "anim": {
+                                "enable": false,
+                                "speed": 1,
+                                "opacity_min": 0.1,
+                                "sync": false
+                            }
+                        },
+                        "size": {
+                            "value": 3,
+                            "random": true,
+                            "anim": {
+                                "enable": false,
+                                "speed": 40,
+                                "size_min": 0.1,
+                                "sync": false
+                            }
+                        },
+                        "line_linked": {
+                            "enable": true,
+                            "distance": 150,
+                            "color": "#ffffff",
+                            "opacity": 0.4,
+                            "width": 1
+                        },
+                        "move": {
+                            "enable": true,
+                            "speed": 6,
+                            "direction": "none",
+                            "random": false,
+                            "straight": false,
+                            "out_mode": "out",
+                            "bounce": false,
+                            "attract": {
+                                "enable": false,
+                                "rotateX": 600,
+                                "rotateY": 1200
+                            }
+                        }
+                    },
+                    "interactivity": {
+                        "detect_on": "canvas",
+                        "events": {
+                            "onhover": {
+                                "enable": true,
+                                "mode": "grab"
+                            },
+                            "onclick": {
+                                "enable": true,
+                                "mode": "push"
+                            },
+                            "resize": true
+                        },
+                        "modes": {
+                            "grab": {
+                                "distance": 140,
+                                "line_linked": {
+                                    "opacity": 1
+                                }
+                            },
+                            "bubble": {
+                                "distance": 400,
+                                "size": 40,
+                                "duration": 2,
+                                "opacity": 8,
+                                "speed": 3
+                            },
+                            "repulse": {
+                                "distance": 200,
+                                "duration": 0.4
+                            },
+                            "push": {
+                                "particles_nb": 4
+                            },
+                            "remove": {
+                                "particles_nb": 2
+                            }
+                        }
+                    },
+                    "retina_detect": true
+                }}
+            />
+        )
+    }
 }
 
-console.log(urls); 
+export default Test;
