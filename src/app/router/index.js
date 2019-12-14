@@ -75,7 +75,7 @@ class AppRouter extends React.Component {
 							<Loader />
 							:
 							<Content className="ui-container">
-								<div style={{ marginBottom: this.state.showHeader ? "7rem" : "4rem" }}>{this.state.showHeader && <Header handleClick={this.handleClick} />}</div>
+								<div style={{ marginBottom: this.state.showHeader ? "7em" : "2em" }}>{this.state.showHeader && <Header handleClick={this.handleClick} />}</div>
 								{this.state.noAccess ?
 									<NoAccess />
 									:

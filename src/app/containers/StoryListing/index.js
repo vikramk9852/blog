@@ -8,6 +8,7 @@ import { slideInLeft, slideInRight } from 'react-animations';
 import Utils from '../../utils/utils';
 import './index.scss';
 import "antd/dist/antd.css";
+import Meta from 'antd/lib/card/Meta';
 
 const { Paragraph, Title } = Typography;
 const SlideInLeft = styled.div`animation: 1s ${keyframes`${slideInLeft}`} 1`;
@@ -88,10 +89,50 @@ class StoryListing extends Component {
         // )
         const stats = 5;
         // blogDescription = blogDescription.substr(0, 250);
-        blogDescription += '...';
         // console.log(window.innerWidth)
         let titleLevel = 4;
         let titleEllipsis = 1;
+
+        return (
+            <Card
+                className="storylist__row"
+                cover={
+                    <img
+                        className="storylist__image"
+                        alt="cover"
+                        src={avatarUrl}
+                        onClick={() => this.openStory(story.id, story.blog_category)}
+                    />
+                }
+            >
+                <Meta
+                    title={
+                        <Title
+                            style={{ cursor: "pointer" }}
+                            level={titleLevel}
+                            ellipsis={{ rows: titleEllipsis }}
+                            onClick={() => this.openStory(story.id, story.blog_category)}
+                        >
+                            {story.blog_title}
+                        </Title>
+                    }
+                    description={
+                        <div>
+                            <Paragraph
+                                style={{ cursor: "pointer", margin: 0 }}
+                                ellipsis={{ rows: 2 }}
+                                onClick={() => this.openStory(story.id, story.blog_category)}
+                            >
+                                {blogDescription}
+                            </Paragraph>
+                            <p className="storylist__publishdate">{`${publishedDate}  ${publishedMonth} · ${parseInt(stats)} min read `}<Icon type="star" theme="filled" /></p>
+
+                        </div>
+                    }
+                />
+            </Card>
+        )
+
         return (
             <Row className="storylist__row">
                 <Col xl={18} lg={18} md={18} sm={18} xs={16} className="storylist__box">

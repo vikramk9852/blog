@@ -323,7 +323,7 @@ class Editor extends Component {
 
   render() {
     const cropDimension = {
-      aspect: 16 / 15
+      aspect: 2 / 1
     }
     return (
       <div>
@@ -353,8 +353,8 @@ class Editor extends Component {
                     <TextArea placeholder="Enter one line description of your story" value={this.state.description} onChange={(e) => this.setState({ description: e.target.value })} />
                   </div>
                   <div className="editor__avatar">
-                    <p>Avatar for your story</p>
-                    {(this.state.avatarUrl || this.state.avatarUrl) && <img id="avatarFile" src={this.state.avatarUrl} style={{ width: "160px", height: "150px", marginBottom: "1em" }} alt="avatar" />}
+                    <p>Cover for your story</p>
+                    {(this.state.avatarUrl || this.state.avatarUrl) && <img id="avatarFile" src={this.state.avatarUrl} style={{ width: "300px", height: "150px", marginBottom: "1em" }} alt="avatar" />}
                     <input type="file" accept="image/*" id="avatarImageInput" onChange={(e) => this.refs.cropImage.onSelectFile(e, cropDimension)} />
                     <CropImage ref="cropImage" setFileInfo={(croppedImageFile, croppedImageUrl) => this.setAvatarFile(croppedImageFile, croppedImageUrl)} />
                   </div>

@@ -1,29 +1,33 @@
 
 .storylist{
-    max-width: 50rem;
+    max-width: 45rem;
     margin: 0 auto;
     padding: 0 2em 2em 2em;
     &__row{
         margin: 1em 0;
-        border-radius: 20px;
+        border-radius: 10px;
+        box-shadow   : 0 0 5px 5px rgba(0, 0, 0, 0.03);
         // border: 1px solid gray;
 
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        height: 150px;
+        // box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
+        // height: 24em;
     }
     &__image{
         overflow: hidden;
-        border-radius: 0 20px 20px 0;
+        border-radius: 10px 10px 0 0 !important;
         // // height: 130px;
         // // width: 134px;
-        img{
-            max-height: 100%;
-            max-width: 100%;
+        // img{
+            // max-height: 100%;
+            // max-width: 100%;
             object-fit: cover;
-            height: 150px;
-    }
-    cursor: pointer;
+            height: 25em;
+        // }
+        cursor: pointer;
         // width: 152px;
+    }
+    &__publishdate{
+        margin-bottom: 0;
     }
     &__box{
         // height: 155px;
@@ -69,13 +73,11 @@
 @media(max-width: 491px){
     .storylist{
         padding: 0 1em 1em 1em;
-        &__row{
-            height: 150px;
+        .ant-card-body{
+            padding: 15px 10px;
         }
         &__image{
-            img{
-                height: 150px;
-            }
+            height: 15em;
         }
     }
 }

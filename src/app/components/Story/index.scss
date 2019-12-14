@@ -1,25 +1,65 @@
 
 .story{
     &__title{
+        color: black;
+        text-align: left;
         line-height: 1 !important;
-        margin-bottom: 0.8em !important;
+        margin-bottom: 0.4em !important;
     }
-    // &__avatar{
-    //     width: 80%;
-    //     height: 500px;
-    //     margin: 0 auto;
-    // }
+    &__description{
+        margin-bottom: 1em !important;
+        font-size: 24px;
+        font-family: onezero-yellix, sans-serif;
+        line-height: 1.2;
+    }
+    &__author{
+        margin-bottom: 3em;
+        &__avatar{
+            float: left;
+        }
+        &__name{
+            color: black;
+            margin-left: 4em;
+        }
+    }
+    &__publishdate{
+        margin-left: 4em;
+    }
+    &__cover{
+        max-width: 889px;
+        padding: 0 1em;
+        margin: 0 auto 2em auto;
+        &__image{
+            text-align: center;
+        }
+    }
+    &__firstchar{
+        background-image: linear-gradient(#000000, #aaaaaa);
+        float: left;
+        margin-right: 0.4em;
+        .ant-avatar-string{
+            font-size: 30px;
+        }
+    }
     &__content{
         max-width: 789px;
         margin: 10px auto;
-        padding: 10px 20px;
+        padding: 0 20px;
     }
     p{
         margin-bottom: 0;
     }
     img{
+        width: 100%;
         max-width: 100%;
         max-height: 100%;
         object-fit: cover;
+    }
+}
+
+@media(max-width: '491px'){
+    .story__cover__image{
+
+        margin: 0 -1em !important;
     }
 }
