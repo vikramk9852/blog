@@ -125,7 +125,7 @@ class Profile extends Component {
     render() {
         return (
             <div className="profile">
-                {this.state.showLoader ? <Loader />
+                {this.state.showLoader ? <Loader dotLoader={true} />
                     :
                     <div>
                         <div className="profile__profile_photo">

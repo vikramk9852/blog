@@ -21,8 +21,18 @@ class Utils {
     static urlToBlobImage(url) {
         let proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         return fetch(proxyUrl + url).then(res => {
-            console.log(res);
             return res.blob()
+        })
+    }
+
+    static getBase64Image(imgUrl, callback) {
+        return Utils.urlToBlobImage(imgUrl).then(blob => {
+            var fr = new FileReader()
+            fr.onload = () => {
+                var b64 = fr.result;
+                callback(b64);
+            }
+            fr.readAsDataURL(blob)
         })
     }
 }

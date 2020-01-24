@@ -71,6 +71,7 @@ class Story extends Component {
                 storyId: storyId,
                 description: storyData.blog_description,
                 publishDate: storyData.blog_publish_date,
+                category: storyData.blog_category,
                 imgUrl: profile.profile_image,
                 name: profile.profile_name,
                 showLoader: false
@@ -86,9 +87,10 @@ class Story extends Component {
 
     render() {
         let blogPublished = new Date(this.state.publishDate);
+        let blogCategory = this.state.category;
         let publishedDate = blogPublished.getDate();
         let publishedMonth = blogPublished.getMonth();
-        publishedDate = Utils.getMonth(publishedMonth);
+        publishedMonth = Utils.getMonth(publishedMonth);
         const stats = 5;
 
         return (
@@ -110,7 +112,10 @@ class Story extends Component {
                                 <Avatar size={50} className="story__author__avatar" src={this.state.imgUrl} />
                                 <div style={{ transform: 'translate(0, 7%)' }}>
                                     <p className="story__author__name">{this.state.name}</p>
-                                    <p className="story__publishdate">{`${publishedDate}  ${publishedMonth} · ${parseInt(stats)} min read `}<Icon type="star" theme="filled" /></p>
+                                    <p className="story__publishdate">
+                                        {`${publishedDate}  ${publishedMonth} · ${blogCategory} · ${parseInt(stats)} min read `}
+                                        <Icon type="star" theme="filled" />
+                                    </p>
                                 </div>
                             </div>
                             <div className="story__cover__image">

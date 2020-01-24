@@ -8,10 +8,16 @@ class Loader extends Component {
 
     render() {
         return (
-            <div className="drawing" id="loading">
-                <div className="loading-dot"></div>
+            <div>
+                {
+                    this.props.dotLoader ?
+                        <div className="drawing" id="loading">
+                            <div className="loading-dot"></div>
+                        </div>
+                        :
+                        <Skeleton className="drawing" active paragraph={{ rows: 8 }} />
+                }
             </div>
-            // <Skeleton className="drawing" active paragraph={{ rows: 8 }} />
 
             // <div class="loader">
             //     <div class="dot"></div>

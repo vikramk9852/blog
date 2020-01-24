@@ -10,3 +10,11 @@ export var Images = {
     other: LifeStyleIcon,
     selfimage: SelfImage
 }
+
+export var homepageTitle = "Profile title";
+export var homepageDescription = "This is a space where you can provide some little description about yourself or in case if you don't want to provide the description, then the page will look fucking akward and only you will be responsible for that akwardness. This is a space where you can provide some little description about yourself or in case if you don't want to provide the description, then the page will look fucking akward and only you will be responsible for that akwardness. This is a space where you can provide some little description about yourself or in case if you don't want to provide the description, then the page will look fucking akward and only you will be responsible for that akwardness. This is a space where you can provide some little description about yourself or in case if you don't want to provide the description, then the page will look fucking akward and only you will be responsible for that akwardness"
+export var storyCategories = [
+    "lifestyle",
+    "beauty",
+    "travel"
+]

@@ -11,7 +11,6 @@ class FirebaseStorage {
     }
 
     uploadBlobImage(image) {
-        debugger;
         let date = new Date();
         date = date.getTime().toString();
         return FirebaseStorage.storage.ref().child(date).put(image);

@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Icon, Typography } from 'antd';
-import ReactHtmlParser from 'react-html-parser';
+import { withRouter } from 'react-router-dom'
+import { Row, Col, Card, Icon, Typography, Affix } from 'antd';
+import CustomMenu from '../../components/CustomDropDown';
 import Loader from '../../components/Loader';
+import NoData from '../../components/NoData';
 import Firebase from '../../utils/firebase';
 import styled, { keyframes } from 'styled-components';
 import { slideInLeft, slideInRight } from 'react-animations';
+import { storyCategories } from '../../constants/app-constants';
+import TempIcon from '../../../assets/images/travel.svg';
 import Utils from '../../utils/utils';
 import './index.scss';
 import "antd/dist/antd.css";
@@ -13,51 +17,92 @@ import Meta from 'antd/lib/card/Meta';
 const { Paragraph, Title } = Typography;
 const SlideInLeft = styled.div`animation: 1s ${keyframes`${slideInLeft}`} 1`;
 const SlideInRight = styled.div`animation: 1s ${keyframes`${slideInRight}`} 1`;
+const menuItems = ['Lifestyle', 'Beauty', 'Travel', 'all'];
 class StoryListing extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
             key: "0",
-            showLoader: true
+            showLoader: true,
+            headerText: "All Stories"
         }
     }
 
     componentDidMount() {
-        let url = this.props.location.search;
-        let urlInfo = url.split('?');
-        this.category = urlInfo[1];
-        let path = `published/${urlInfo[1]}`;
-        this.fetchStoryList(path);
+        // let url = this.props.location.search;
+        // let urlInfo = url.split('?');
+        // this.category = urlInfo[1];
+        // let path = `published/lifestyle`;
+        this.fetchAllStories();
     }
 
-    fetchStoryList = (path) => {
+    fetchAllStories = (category) => {
+        this.setState({ showLoader: true }, () => {
+            category = category || storyCategories;
+            let promiseArray = [];
+            for (let index in category) {
+                // promiseArray.push(
+                //     {
+                //         category: category[index],
+                //         data: this.fetchStoryByCategory(category[index])
+                //     }
+                // )
+
+                let promise = this.fetchStoryByCategory(category[index]).then(storyList => {
+                    return {
+                        category: category[index],
+                        data: storyList
+                    }
+                })
+                promiseArray.push(promise);
+            }
+            Promise.all(promiseArray).then(storyByCategory => {
+                let allStories = [], filteredByCategory = {};
+                for (let index in storyByCategory) {
+                    allStories.push(storyByCategory[index].data);
+                    filteredByCategory[storyByCategory[index].category] = storyByCategory[index].data;
+                }
+                this.props.hideLoader();
+                this.setState({ storyList: allStories, allStories: allStories, filteredByCategory: filteredByCategory, showLoader: false });
+            }).catch(() => {
+                this.props.hideLoader();
+                this.setState({ showLoader: false, switchTabLoader: false });
+            })
+        })
+    }
+
+    fetchStoryByCategory = (path) => {
         let firebase = Firebase.getInstance();
-        firebase.getDB().getDataBypath(path).then(stories => {
+        return firebase.getDB().getDataBypath(`published/${path}`).then(stories => {
             stories = stories.val();
+            // stories.sort((a, b) => (a.blog_publish_date - b.blog_publish_date));
             let storyList = [], storyComponent, index = 0;
             for (let story in stories) {
+                // console.log(new Date(stories[story].blog_publish_date))
                 storyComponent = this.createStoryComponent(stories[story]);
-                if (++index % 2 === 0) {
-                    storyList.push(
-                        <SlideInLeft>
-                            {storyComponent}
-                        </SlideInLeft>
-                    )
-                }
-                else {
-                    storyList.push(
-                        <SlideInRight>
-                            {storyComponent}
-                        </SlideInRight>
-                    )
-                }
-                // storyList.push(storyComponent);
+                // if (++index % 2 === 0) {
+                //     storyList.push(
+                //         <SlideInLeft>
+                //             {storyComponent}
+                //         </SlideInLeft>
+                //     )
+                // }
+                // else {
+                //     storyList.push(
+                //         <SlideInRight>
+                //             {storyComponent}
+                //         </SlideInRight>
+                //     )
+                // }
+                storyList.push(storyComponent);
             }
-            this.setState({ storyList: storyList, showLoader: false });
-        }).catch(() => {
-            this.setState({ showLoader: false, switchTabLoader: false });
+            return storyList;
+            // this.setState({ storyList: storyList, showLoader: false });
         })
+        // .catch(() => {
+        //     this.setState({ showLoader: false, switchTabLoader: false });
+        // })
     }
 
     openStory(storyId, category) {
@@ -71,25 +116,9 @@ class StoryListing extends Component {
         let blogPublished = new Date(story.blog_publish_date);
         let publishedDate = blogPublished.getDate();
         let publishedMonth = blogPublished.getMonth();
-        publishedDate = Utils.getMonth(publishedMonth);
+        publishedMonth = Utils.getMonth(publishedMonth);
         let blogDescription = story.blog_description;
-        let statsOptions = {
-            wordsPerMinute: 100
-        }
-
-        // return (
-        //     <Row className="storylist__row">
-        //         <Col xl={19} lg={19} md={19} sm={19} xs={16} className="storylist__box">
-        //             {story.blog_title}
-        //         </Col>
-        //         <Col xl={5} lg={5} md={5} sm={5} xs={8} className="storylist__image">
-        //             <img src={avatarUrl} />
-        //         </Col>
-        //     </Row>
-        // )
         const stats = 5;
-        // blogDescription = blogDescription.substr(0, 250);
-        // console.log(window.innerWidth)
         let titleLevel = 4;
         let titleEllipsis = 1;
 
@@ -101,7 +130,7 @@ class StoryListing extends Component {
                         className="storylist__image"
                         alt="cover"
                         src={avatarUrl}
-                        onClick={() => this.openStory(story.id, story.blog_category)}
+                        onClick={() => this.openStory(story.id, blogCategory)}
                     />
                 }
             >
@@ -111,7 +140,7 @@ class StoryListing extends Component {
                             style={{ cursor: "pointer" }}
                             level={titleLevel}
                             ellipsis={{ rows: titleEllipsis }}
-                            onClick={() => this.openStory(story.id, story.blog_category)}
+                            onClick={() => this.openStory(story.id, blogCategory)}
                         >
                             {story.blog_title}
                         </Title>
@@ -121,35 +150,33 @@ class StoryListing extends Component {
                             <Paragraph
                                 style={{ cursor: "pointer", margin: 0 }}
                                 ellipsis={{ rows: 2 }}
-                                onClick={() => this.openStory(story.id, story.blog_category)}
+                                onClick={() => this.openStory(story.id, blogCategory)}
                             >
                                 {blogDescription}
                             </Paragraph>
-                            <p className="storylist__publishdate">{`${publishedDate}  ${publishedMonth} · ${parseInt(stats)} min read `}<Icon type="star" theme="filled" /></p>
+                            <p className="storylist__publishdate">
+                                {`${publishedDate}  ${publishedMonth} · ${blogCategory} · ${parseInt(stats)} min read `}
+                                <Icon type="star" theme="filled" />
+                            </p>
 
                         </div>
                     }
                 />
             </Card>
         )
+    }
 
-        return (
-            <Row className="storylist__row">
-                <Col xl={18} lg={18} md={18} sm={18} xs={16} className="storylist__box">
-                    <Title style={{ cursor: "pointer" }} level={titleLevel} ellipsis={{ rows: titleEllipsis }} onClick={() => this.openStory(story.id, story.blog_category)}>{story.blog_title}</Title>
-                    <Paragraph style={{ cursor: "pointer" }} ellipsis={{ rows: 2 }} onClick={() => this.openStory(story.id, story.blog_category)}>{blogDescription}</Paragraph>
-
-                    {/* <p className="storylist__box__category"><Tag>{blogCategory}</Tag></p> */}
-                    <p className="storylist__box__publish__date">{`${publishedDate}  ${publishedMonth} · ${parseInt(stats)} min read `}<Icon type="star" theme="filled" /></p>
-                    {/* <Col span={12} align="right" className="storylist__box__pinicon">
-                        <Icon type="pushpin" />
-                    </Col> */}
-                </Col>
-                <Col xl={6} lg={6} md={6} sm={6} xs={8} className="storylist__image" align="right">
-                    {<img src={avatarUrl} onClick={() => this.openStory(story.id, story.blog_category)} />}
-                </Col>
-            </Row>
-        )
+    filterStories = (e) => {
+        let storyList = this.state.filteredByCategory[menuItems[e].toLowerCase()];
+        // let headerTextArray = ["Lifestyle", "Beauty", "Travel"]
+        let headerText = "All Stories"
+        if (e == '3') {
+            storyList = this.state.allStories;
+        }
+        else {
+            headerText += ` (${menuItems[e]})`
+        }
+        this.setState({ storyList, headerText });
     }
 
     render() {
@@ -157,11 +184,30 @@ class StoryListing extends Component {
             <div className="storylist">
                 {this.state.showLoader ? <Loader />
                     :
-                    this.state.storyList
+                    <div>
+                        <Affix offsetTop={window.innerWidth > 767 ? 30 : 0}>
+                            <Row gutter={24} className="storylist__header">
+                                <Col span={20}>
+                                    <h2 style={{ margin: 0 }}>{this.state.headerText}</h2>
+                                </Col>
+                                <Col span={3} align="right" style={{ padding: 0 }}>
+                                    <CustomMenu
+                                        handleClick={this.filterStories}
+                                        menuItem={menuItems}
+                                        menuHolder="icon"
+                                        iconType="filter"
+                                        iconSize="13px"
+                                    />
+                                </Col>
+                            </Row>
+                        </Affix>
+                        {this.state.storyList.length > 0 ? this.state.storyList : <NoData noDataIcon={TempIcon} title='No Stories' />}
+                    </div>
+
                 }
             </div>
         )
     }
 }
 
-export default StoryListing;
+export default withRouter(StoryListing);

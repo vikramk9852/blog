@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import ReactQuill, { Quill } from 'react-quill'; // ES6
-import 'react-quill/dist/quill.snow.css'; // ES6
+import ReactQuill, { Quill } from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import Utils from '../../utils/utils';
 import './index.scss';
 import { Input, Button, Select, Row, Col, message } from 'antd';
@@ -140,7 +140,6 @@ class Editor extends Component {
     let promiseArray = [];
     let firebase = Firebase.getInstance();
     let firebaseApp = firebase.getFirebaseApp();
-    debugger;
     for (let index in images) {
       let blobImage = this.state.blobUrlToFile[images[index]];
       let uploadTask = firebase.getStorage().uploadBlobImage(blobImage);
@@ -162,11 +161,6 @@ class Editor extends Component {
         }, function (error) {
           console.log(error);
         })
-      // , function (url) {
-      //     // Upload completed successfully, now we can get the download URL
-      //     // return promiseArray.push(uploadTask.snapshot.ref.getDownloadURL())
-      //     return promiseArray.push(uploadTask.snapshot.ref.getDownloadURL());
-      // });
     }
     return Promise.all(promiseArray);
   }
@@ -328,7 +322,7 @@ class Editor extends Component {
     return (
       <div>
         {
-          this.state.showLoader ? <Loader /> :
+          this.state.showLoader ? <Loader dotLoader={true} /> :
             <div className="editor" >
               < Row className="editor__container" >
                 <Col className="editor__leftpane" span={24} style={{ padding: "0 10px" }}>
@@ -378,6 +372,5 @@ class Editor extends Component {
     )
   }
 }
-
 
 export default Editor;

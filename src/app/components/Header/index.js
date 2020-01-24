@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Icon, Row, Col, Avatar, message } from 'antd';
 import Menu from '../CustomDropDown';
 import Firebase from '../../utils/firebase';
+import Utils from '../../utils/utils';
 import './index.scss';
 const paths = ["admin", "editor?new", "profile", "login"];
 
@@ -11,15 +12,25 @@ class Header extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            imgUrl: ""
+            imgUrl: Utils.getFromLocalStorage('profile_image')
         }
     }
 
     componentDidMount() {
+        this.listenForProfileUpdate();
+    }
+
+    listenForProfileUpdate = () => {
+        let that = this;
         let firebase = Firebase.getInstance();
-        firebase.getDB().getDataBypath('profile').then(res => {
-            res = res.val();
-            this.setState({ imgUrl: res.profile_image })
+        let firebaseApp = firebase.getFirebaseApp();
+        let profileRef = firebaseApp.database().ref("profile");
+        profileRef.on('value', function (snapshot) {
+            let profile = snapshot.val();
+            Utils.getBase64Image(profile.profile_image, function (base64image) {
+                localStorage.setItem("profile_image", base64image);
+                that.setState({ imgUrl: base64image });
+            });
         })
     }
 

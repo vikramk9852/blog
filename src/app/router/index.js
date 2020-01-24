@@ -15,6 +15,7 @@ import Login from '../containers/Login';
 import StoryListing from '../containers/StoryListing';
 import Loader from '../components/Loader';
 import Firebase from '../utils/firebase';
+import Utils from '../utils/utils';
 import './index.scss';
 
 import Test from '../components/Editor/test';
@@ -44,6 +45,7 @@ class AppRouter extends React.Component {
 	componentWillReceiveProps() {
 		this.isLoggedIn();
 	}
+
 
 	restrictAccess = () => {
 		let url = this.props.location.pathname;
