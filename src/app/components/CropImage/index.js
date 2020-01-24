@@ -1,124 +1,101 @@
-import ReactDOM from 'react-dom';
 import React, { PureComponent } from 'react';
-import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import Firebase from '../../utils/firebase';
-import { Button, Modal } from 'antd';
+import Loader from '../Loader';
+import imageCompression from 'browser-image-compression';
+import { Modal, Spin } from 'antd';
+import Cropper from 'react-cropper';
+import 'cropperjs/dist/cropper.css';
 import './index.scss';
 
 class CropImage extends PureComponent {
-    state = {
-        src: null,
-        cropImageModal: false,
-        crop: {},
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            src: null,
+            cropImageModal: false,
+            crop: {},
+        };
+    }
 
     onSelectFile = (e, cropDimension) => {
         if (e.target.files && e.target.files.length > 0) {
-            const reader = new FileReader();
-            reader.addEventListener('load', () =>
-                this.setState({ src: reader.result })
-            );
-            reader.readAsDataURL(e.target.files[0]);
-            this.setState({
-                cropImageModal: true,
-                crop: cropDimension
-            })
+            let imageFile = e.target.files[0];
+            console.log('originalFile instanceof Blob', imageFile instanceof Blob); // true
+            console.log(`originalFile size ${imageFile.size / 1024 / 1024} MB`);
+
+            let options = {
+                maxSizeMB: 1.5,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true
+            }
+            let that = this;
+            this.setState({ cropImageModal: true, showLoader: true }, () => {
+                imageCompression(imageFile, options)
+                    .then(function (compressedFile) {
+                        console.log('compressedFile instanceof Blob', compressedFile); // true
+                        console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
+                        that.setState({
+                            crop: cropDimension && cropDimension.aspect,
+                            src: URL.createObjectURL(compressedFile),
+                            showLoader: false
+                        })
+                        // return uploadToServer(compressedFile); // write your own logic
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
         }
     };
-
-    // If you setState the crop in here you should return false.
-    onImageLoaded = image => {
-        this.imageRef = image;
-    };
-
-    onCropComplete = crop => {
-        this.makeClientCrop(crop);
-    };
-
-    onCropChange = (crop, percentCrop) => {
-        // You could also use percentCrop:
-        // this.setState({ crop: percentCrop });
-        this.setState({ crop });
-    };
-
-    async makeClientCrop(crop) {
-        if (this.imageRef && crop.width && crop.height) {
-            const croppedImageUrl = await this.getCroppedImg(
-                this.imageRef,
-                crop,
-                'newFile.jpeg'
-            );
-            this.setState({ croppedImageUrl });
-        }
-    }
-
-    getCroppedImg(image, crop, fileName) {
-        const canvas = document.createElement('canvas');
-        const scaleX = image.naturalWidth / image.width;
-        const scaleY = image.naturalHeight / image.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-            image,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            crop.width,
-            crop.height
-        );
-
-        return new Promise((resolve, reject) => {
-            canvas.toBlob(blob => {
-                if (!blob) {
-                    //reject(new Error('Canvas is empty'));
-                    console.error('Canvas is empty');
-                    return;
-                }
-                blob.name = fileName;
-                this.setState({ blobImage: blob });
-                window.URL.revokeObjectURL(this.fileUrl);
-                this.fileUrl = window.URL.createObjectURL(blob);
-                resolve(this.fileUrl);
-            }, 'image/jpeg');
-        });
-    }
 
     handleOk = () => {
-        this.setState({ cropImageModal: false });
-        this.props.setFileInfo(this.state.blobImage, this.state.croppedImageUrl)
+        let data = this.refs.cropper.getCroppedCanvas();
+        let that = this;
+        this.setState({ showLoader: true }, () => {
+            data.toBlob(function (blob) {
+                let newImg = document.createElement('img'),
+                    url = URL.createObjectURL(blob);
+
+                newImg.onload = function () {
+                    // no longer need to read the blob so it's revoked
+                    URL.revokeObjectURL(url);
+                };
+
+                console.log(blob)
+                // that.setState({ croppedImg: url })
+                that.setState({ cropImageModal: false, showLoader: false });
+                that.props.setFileInfo(blob, url);
+            });
+        })
     }
 
     render() {
         const { crop, src } = this.state;
         return (
             <div className="cropimage">
-                {src && (
-                    <Modal
-                        title="Crop the image"
-                        maskClosable={false}
-                        visible={this.state.cropImageModal}
-                        onOk={this.handleOk}
-                        onCancel={() => this.setState({ cropImageModal: false })}
-                    >
-                        <div>
-                            <ReactCrop
+                <Modal
+                    title="Crop the image"
+                    maskClosable={false}
+                    visible={this.state.cropImageModal}
+                    onOk={this.handleOk}
+                    onCancel={() => this.setState({ cropImageModal: false })}
+                >
+                    <div style={{ height: this.state.showLoader && '300px' }}>
+                        {this.state.showLoader ?
+                            <Spin className="drawing" size="large" /> :
+                            <Cropper
+                                ref={"cropper"}
                                 src={src}
-                                crop={crop}
-                                ruleOfThirds
-                                onImageLoaded={this.onImageLoaded}
-                                onComplete={this.onCropComplete}
-                                onChange={this.onCropChange}
-                                keepSelection={true}
+                                style={{ height: 400 }}
+                                // Cropper.js options
+                                aspectRatio={crop}
+                                guides={true}
+                                highlight={true}
+                                zoomable={false}
                             />
-                        </div>
-                    </Modal>
-                )}
+                        }
+                    </div>
+                </Modal>
             </div>
         );
     }
