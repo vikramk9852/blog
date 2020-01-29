@@ -1,3 +1,4 @@
+import imageCompression from 'browser-image-compression';
 
 class Utils {
 
@@ -18,6 +19,10 @@ class Utils {
         return `${month} ${date}, ${year}`;
     }
 
+    static replaceOccurences(text, toReplace, toReplaceWith) {
+        return text.split(toReplace).join(toReplaceWith);
+    }
+
     static urlToBlobImage(url) {
         let proxyUrl = 'https://cors-anywhere.herokuapp.com/';
         return fetch(proxyUrl + url).then(res => {
@@ -25,14 +30,28 @@ class Utils {
         })
     }
 
-    static getBase64Image(imgUrl, callback) {
+    static getBase64Image(imgUrl, compress, callback) {
         return Utils.urlToBlobImage(imgUrl).then(blob => {
-            var fr = new FileReader()
-            fr.onload = () => {
-                var b64 = fr.result;
-                callback(b64);
+            let promise;
+            if (compress) {
+                promise = imageCompression(blob, {
+                    maxSizeMB: 1.5,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true
+                })
             }
-            fr.readAsDataURL(blob)
+            else {
+                promise = Promise.resolve(blob);
+            }
+            promise.then(res => {
+
+                var fr = new FileReader()
+                fr.onload = () => {
+                    var b64 = fr.result;
+                    callback(b64);
+                }
+                fr.readAsDataURL(res)
+            })
         })
     }
 }

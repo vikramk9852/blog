@@ -19,12 +19,8 @@ class Story extends Component {
     }
 
     componentDidMount() {
-        let url = this.props.location.search;
-        let urlInfo = url.split('?');
-        let storyState = urlInfo[1];
-        let storyTag = urlInfo[2];
-        let storyId = urlInfo[3];
-        let path = `${storyState}/${storyTag}/${storyId}`;
+        let path = this.props.location.pathname;
+        path = path.split('story/')[1];
         let firebase = Firebase.getInstance();
         if (this.storyState === "drafts") {
             let user = firebase.getAuth().getCurrentUser();
@@ -33,11 +29,12 @@ class Story extends Component {
                 return;
             }
         }
-        this.fetchStory(firebase, path, storyId);
+        this.fetchStory(firebase, path);
     }
 
-    fetchStory(firebase, path, storyId) {
-        firebase.getDB().getDataBypath(path).then(storyData => {
+    fetchStory(firebase, path) {
+        let storyData, profile;
+        firebase.getDB().getDataBypath(`blogdata/${path}`).then(storyData => {
             if (!storyData) {
                 message.error("Story not found");
                 this.setState({
@@ -48,10 +45,17 @@ class Story extends Component {
             let profile = firebase.getDB().getDataBypath('profile');
             return Promise.all([storyData, profile]);
         }).then(res => {
-            let storyData = res[0].val();
+            debugger;
+
+            storyData = res[0].val();
+            profile = res[1].val();
+            let metaDataPath = storyData.blog_metadata.blog_metadata;
+            return firebase.getDB().getDataBypath(metaDataPath);
+        }).then(res => {
             let prev, firstChar;
             let blogData = storyData.blog_data;
-            console.log(blogData);
+            let storyMetaData = res.val();
+            console.log(blogData, storyMetaData);
             for (let index in blogData) {
                 index = parseInt(index);
                 if (prev === '>' && blogData[index].match(/[^\w]|_/) == null) {
@@ -62,16 +66,14 @@ class Story extends Component {
                 }
                 prev = blogData[index];
             }
-            let profile = res[1].val();
             this.setState({
-                title: storyData.blog_title,
+                title: storyMetaData.blog_title,
                 firstChar: firstChar,
                 content: blogData,
-                avatarUrl: storyData.blog_avatar_url,
-                storyId: storyId,
-                description: storyData.blog_description,
-                publishDate: storyData.blog_publish_date,
-                category: storyData.blog_category,
+                avatarUrl: storyMetaData.blog_avatar_url,
+                description: storyMetaData.blog_description,
+                publishDate: storyMetaData.blog_publish_date,
+                category: storyMetaData.blog_category,
                 imgUrl: profile.profile_image,
                 name: profile.profile_name,
                 showLoader: false

@@ -4,13 +4,9 @@ import './index.scss';
 import "antd/dist/antd.css";
 import Loader from '../../components/Loader';
 import StoryListing from '../StoryListing';
-import FastAverageColor from 'fast-average-color';
 import Firebase from '../../utils/firebase';
-import BackgroundImage from '../../../assets/images/background.jpg';
-import { homepageDescription, homepageTitle } from '../../constants/app-constants';
 
 const { Paragraph, Title } = Typography
-const fac = new FastAverageColor();
 
 class HomePage extends Component {
 
@@ -57,7 +53,7 @@ class HomePage extends Component {
                                     <a href="https://www.github.com/vikramk9852"><Icon className="landing_page__icon" type="github" /></a>
                                     <a href="https://www.linkedin.com/vikramk9852"><Icon className="landing_page__icon" type="linkedin" /></a>
                                     <a href="https://www.twitter.com/vikramk9852"><Icon className="landing_page__icon" type="twitter" /></a>
-                                    <a href="#"><Icon className="landing_page__icon" type="mail" /></a>
+                                    <a href="mailto:vikramk9852@gmail.com"><Icon className="landing_page__icon" type="mail" /></a>
                                 </div>
                                 <Paragraph>
                                     {this.state.profile.profile_description}

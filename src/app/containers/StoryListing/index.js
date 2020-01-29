@@ -5,8 +5,6 @@ import CustomMenu from '../../components/CustomDropDown';
 import Loader from '../../components/Loader';
 import NoData from '../../components/NoData';
 import Firebase from '../../utils/firebase';
-import styled, { keyframes } from 'styled-components';
-import { slideInLeft, slideInRight } from 'react-animations';
 import { storyCategories } from '../../constants/app-constants';
 import TempIcon from '../../../assets/images/travel.svg';
 import Utils from '../../utils/utils';
@@ -15,8 +13,6 @@ import "antd/dist/antd.css";
 import Meta from 'antd/lib/card/Meta';
 
 const { Paragraph, Title } = Typography;
-const SlideInLeft = styled.div`animation: 1s ${keyframes`${slideInLeft}`} 1`;
-const SlideInRight = styled.div`animation: 1s ${keyframes`${slideInRight}`} 1`;
 const menuItems = ['Lifestyle', 'Beauty', 'Travel', 'all'];
 class StoryListing extends Component {
 
@@ -30,10 +26,6 @@ class StoryListing extends Component {
     }
 
     componentDidMount() {
-        // let url = this.props.location.search;
-        // let urlInfo = url.split('?');
-        // this.category = urlInfo[1];
-        // let path = `published/lifestyle`;
         this.fetchAllStories();
     }
 
@@ -42,13 +34,6 @@ class StoryListing extends Component {
             category = category || storyCategories;
             let promiseArray = [];
             for (let index in category) {
-                // promiseArray.push(
-                //     {
-                //         category: category[index],
-                //         data: this.fetchStoryByCategory(category[index])
-                //     }
-                // )
-
                 let promise = this.fetchStoryByCategory(category[index]).then(storyList => {
                     return {
                         category: category[index],
@@ -76,37 +61,17 @@ class StoryListing extends Component {
         let firebase = Firebase.getInstance();
         return firebase.getDB().getDataBypath(`published/${path}`).then(stories => {
             stories = stories.val();
-            // stories.sort((a, b) => (a.blog_publish_date - b.blog_publish_date));
             let storyList = [], storyComponent, index = 0;
             for (let story in stories) {
-                // console.log(new Date(stories[story].blog_publish_date))
                 storyComponent = this.createStoryComponent(stories[story]);
-                // if (++index % 2 === 0) {
-                //     storyList.push(
-                //         <SlideInLeft>
-                //             {storyComponent}
-                //         </SlideInLeft>
-                //     )
-                // }
-                // else {
-                //     storyList.push(
-                //         <SlideInRight>
-                //             {storyComponent}
-                //         </SlideInRight>
-                //     )
-                // }
                 storyList.push(storyComponent);
             }
             return storyList;
-            // this.setState({ storyList: storyList, showLoader: false });
         })
-        // .catch(() => {
-        //     this.setState({ showLoader: false, switchTabLoader: false });
-        // })
     }
 
-    openStory(storyId, category) {
-        let path = `story?published?${category}?${storyId}`;
+    openStory(storyId) {
+        let path = `story/${storyId}`;
         this.props.history.push(path);
     }
 
@@ -121,6 +86,7 @@ class StoryListing extends Component {
         const stats = 5;
         let titleLevel = 4;
         let titleEllipsis = 1;
+        let titleToPath = Utils.replaceOccurences(story.blog_title, " ", "-");
 
         return (
             <Card
@@ -130,7 +96,7 @@ class StoryListing extends Component {
                         className="storylist__image"
                         alt="cover"
                         src={avatarUrl}
-                        onClick={() => this.openStory(story.id, blogCategory)}
+                        onClick={() => this.openStory(titleToPath)}
                     />
                 }
             >
@@ -140,7 +106,7 @@ class StoryListing extends Component {
                             style={{ cursor: "pointer" }}
                             level={titleLevel}
                             ellipsis={{ rows: titleEllipsis }}
-                            onClick={() => this.openStory(story.id, blogCategory)}
+                            onClick={() => this.openStory(titleToPath)}
                         >
                             {story.blog_title}
                         </Title>
@@ -150,7 +116,7 @@ class StoryListing extends Component {
                             <Paragraph
                                 style={{ cursor: "pointer", margin: 0 }}
                                 ellipsis={{ rows: 2 }}
-                                onClick={() => this.openStory(story.id, blogCategory)}
+                                onClick={() => this.openStory(titleToPath)}
                             >
                                 {blogDescription}
                             </Paragraph>
@@ -176,7 +142,7 @@ class StoryListing extends Component {
         else {
             headerText += ` (${menuItems[e]})`
         }
-        this.setState({ storyList, headerText });
+        this.setState({ storyList, headerText, selectedTab: menuItems[e] });
     }
 
     render() {
@@ -194,6 +160,7 @@ class StoryListing extends Component {
                                     <CustomMenu
                                         handleClick={this.filterStories}
                                         menuItem={menuItems}
+                                        defaultSelectedKeys={this.state.selectedTab}
                                         menuHolder="icon"
                                         iconType="filter"
                                         iconSize="13px"

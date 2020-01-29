@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { Row, Col, Menu, message, Modal, Button, Icon } from 'antd';
+import { Row, Col, Menu, message, Modal, Button, Tag } from 'antd';
 import ReactHtmlParser from 'react-html-parser';
 import Loader from '../../components/Loader';
 import CustomMenu from '../../components/CustomDropDown';
 import Firebase from '../../utils/firebase';
+import { storyCategories } from '../../constants/app-constants';
 import './index.scss';
 import "antd/dist/antd.css";
 import Utils from '../../utils/utils';
+const menuItems = ['Lifestyle', 'Beauty', 'Travel', 'All'];
 
 class Stories extends Component {
 
@@ -25,27 +27,51 @@ class Stories extends Component {
         this.fetchData();
     }
 
-    fetchData = () => {
-        let firebase = Firebase.getInstance();
-        let path = this.state.currentTab;
-        firebase.getDB().getDataBypath(path).then(stories => {
-            stories = stories.val();
-            let allStories = [];
-            for (let category in stories) {
-                for (let story in stories[category]) {
-                    allStories.push(this.createStoryComponent(stories[category][story]));
+    fetchData = (category) => {
+        category = category || storyCategories;
+        let promiseArray = [];
+        for (let index in category) {
+            let promise = this.fetchStoryByCategory(category[index]).then(storyList => {
+                return {
+                    category: category[index],
+                    data: storyList
                 }
+            })
+            promiseArray.push(promise);
+        }
+        Promise.all(promiseArray).then(storyByCategory => {
+            let allStories = [], filteredByCategory = {};
+            for (let index in storyByCategory) {
+                allStories.push(storyByCategory[index].data);
+                filteredByCategory[storyByCategory[index].category] = storyByCategory[index].data;
             }
-            allStories = <div className="stories__allstories">{allStories}</div>;
-            this.setState({ allStories: allStories, showLoader: false, switchTabLoader: false });
+            this.setState({ storyList: allStories, allStories: allStories, filteredByCategory: filteredByCategory, showLoader: false, switchTabLoader: false });
         }).catch(() => {
             this.setState({ showLoader: false, switchTabLoader: false });
         })
     }
 
+    openStory = (path) => {
+        path = Utils.replaceOccurences(path, ' ', '-');
+        this.props.history.push(`story/${path}`);
+    }
+
+    fetchStoryByCategory = (path) => {
+        let firebase = Firebase.getInstance();
+        return firebase.getDB().getDataBypath(`${this.state.currentTab}/${path}`).then(stories => {
+            stories = stories.val();
+            let storyList = [], storyComponent, index = 0;
+            for (let story in stories) {
+                storyComponent = this.createStoryComponent(stories[story]);
+                storyList.push(storyComponent);
+            }
+            return storyList;
+        })
+    }
+
     createStoryComponent = (story) => {
         let text = "Story", archive = "Archive";
-        if (story.blog_state === "draft") {
+        if (this.state.currentTab === "drafts") {
             text = "Draft";
             archive = "Publish";
         }
@@ -54,10 +80,11 @@ class Stories extends Component {
         temp.innerHTML = story.blog_data;
         let sanitized = temp.textContent || temp.innerText;
         return (
-            <div className="stories__contents__story" key={story.id}>
-                <p className="stories__contents__story__title" onClick={() => { this.props.history.push(`/story?${this.state.currentTab}?${story.blog_category}?${story.id}`) }}><span className="ql-size-large">{story.blog_title}</span></p>
-                <p className="stories__contents__story__description" onClick={() => { this.props.history.push(`/story?${this.state.currentTab}?${story.blog_category}?${story.id}`) }}>{story.blog_description || ReactHtmlParser(sanitized)}</p>
+            <div className="stories__contents__story" key={story.blog_title}>
+                <p className="stories__contents__story__title" onClick={() => { this.openStory(story.blog_title) }}><span className="ql-size-large">{story.blog_title}</span></p>
+                <p className="stories__contents__story__description" onClick={() => { this.openStory(story.blog_title) }}>{story.blog_description || ReactHtmlParser(sanitized)}</p>
                 <p><span style={{ marginRight: "10px" }}>Published on: {Utils.getDateString(story.blog_publish_date)}</span>
+                    <Tag>{story.blog_category}</Tag>
                     <span onClick={() => {
                         this.setState({ blogData: story })
                     }}>
@@ -101,7 +128,8 @@ class Stories extends Component {
 
     deleteBlog = () => {
         this.setState({ switchTabLoader: true }, () => {
-            let storyId = this.state.blogData.id;
+            let storyId = this.state.blogData.blog_title;
+            storyId = Utils.replaceOccurences(storyId, ' ', '-');
             let category = this.state.blogData.blog_category;
             let path = `${this.state.currentTab}/${category}/${storyId}`;
             let firebase = Firebase.getInstance();
@@ -118,26 +146,33 @@ class Stories extends Component {
 
     handleClick = (value) => {
         let blogCategory = this.state.blogData.blog_category;
+        let storyId = this.state.blogData.blog_title;
+        storyId = Utils.replaceOccurences(storyId, ' ', '-');
         switch (value) {
             case "0":
-                this.props.history.push(`/editor?update?${this.state.currentTab}?${blogCategory}?${this.state.blogData.id}`)
+                this.props.history.push(`/editor/update/${storyId}`)
             case "1":
                 this.setState({ showDeleteDialogue: true })
                 break;
             case "2":
                 this.setState({ switchTabLoader: true }, () => {
-                    let storyId = this.state.blogData.id;
-                    let newPath = `drafts/${blogCategory}/${storyId}`, oldPath = `published/${blogCategory}/${storyId}`;
+                    let newPath = `drafts/${blogCategory}/${storyId}`;
+                    let oldPath = `published/${blogCategory}/${storyId}`;
                     if (this.state.currentTab === "drafts") {
                         [oldPath, newPath] = [newPath, oldPath];
                     }
 
                     let firebase = Firebase.getInstance();
-                    firebase.getDB().moveData(oldPath, newPath).then(res => {
+                    let firebaseDB = firebase.getDB();
+                    let metaDataPath = `blogdata/${storyId}/blog_metadata`;
+                    return firebaseDB.moveData(oldPath, newPath).then(res => {
+                        return firebaseDB.updateBypath(metaDataPath, { blog_metadata: newPath });
+                    }).then(res => {
                         this.fetchData();
                         message.success("Story Archieved successfully");
                         this.setState({ switchTabLoader: false });
                     }).catch(err => {
+                        console.error("Error in archiving the story", err);
                         message.error("Error in archiving the story");
                         this.setState({ switchTabLoader: false });
                     })
@@ -154,6 +189,16 @@ class Stories extends Component {
 
     filterStories = (e) => {
         console.log(e);
+        let storyList = this.state.filteredByCategory[menuItems[e].toLowerCase()];
+        // let headerTextArray = ["Lifestyle", "Beauty", "Travel"]
+        let headerText = "All Stories"
+        if (e == '3') {
+            storyList = this.state.allStories;
+        }
+        else {
+            headerText += ` (${menuItems[e]})`
+        }
+        this.setState({ storyList, headerText });
     }
 
     render() {
@@ -187,19 +232,20 @@ class Stories extends Component {
                             <Menu.Item key="filter" disabled={true}>
                                 <CustomMenu
                                     handleClick={this.filterStories}
-                                    menuItem={['lifestyle', 'beauty', 'travel']}
+                                    menuItem={menuItems}
                                     menuHolder="icon"
                                     iconType="filter"
                                     iconSize="13px"
                                 />
                             </Menu.Item>
                         </Menu>
-                        {/* </Affix> */}
-                        {this.state.switchTabLoader ?
-                            <Loader />
-                            :
-                            this.state.allStories
-                        }
+                        <div className="stories__allstories">
+                            {this.state.switchTabLoader ?
+                                <Loader />
+                                :
+                                this.state.storyList
+                            }
+                        </div>
                     </div>
                 }
                 <Modal

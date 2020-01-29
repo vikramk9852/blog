@@ -27,7 +27,7 @@ class Header extends Component {
         let profileRef = firebaseApp.database().ref("profile");
         profileRef.on('value', function (snapshot) {
             let profile = snapshot.val();
-            Utils.getBase64Image(profile.profile_image, function (base64image) {
+            Utils.getBase64Image(profile.profile_image, true, function (base64image) {
                 localStorage.setItem("profile_image", base64image);
                 that.setState({ imgUrl: base64image });
             });

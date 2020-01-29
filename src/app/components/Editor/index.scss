@@ -56,14 +56,17 @@
   
   .ql {
 
-    &-toolbar{
-      position: fixed;
-      z-index: 1;
-      top: 5%;
-      background: white;    
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
+    // &-toolbar{
+    //   position: fixed;
+    //   z-index: 1;
+    //   top: 5%;
+    //   background: white;    
+    //   left: 50%;
+    //   transform: translate(-50%, -50%);
+    //   width: 100%;
+    // }
+    &-editor{
+      height: 60vh;
     }
     &-container{
       border-radius: 0.5em;

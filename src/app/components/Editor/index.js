@@ -59,30 +59,34 @@ class Editor extends Component {
   }
 
   componentDidMount() {
-    let url = this.props.location.search;
-    let info = url.split('?');
-    let blogState = info[2];
-    let blogCategory = info[3];
-    let storyId = info[4];
-    if (info[1] === "update") {
+    let url = this.props.location.pathname;
+    let info = url.split('/');
+    let storyData;
+    let metaDataPath;
+    debugger;
+    if (info[2] === "update") {
       let firebase = Firebase.getInstance();
-      let path = `${blogState}/${blogCategory}/${storyId}`
-      firebase.getDB().getDataBypath(path).then(res => {
-        let story = res.val();
+      let storyId = info[3];
+      let path = `blogdata/${storyId}`;
+      return firebase.getDB().getDataBypath(path).then(res => {
+        storyData = res.val();
+        metaDataPath = storyData.blog_metadata.blog_metadata;
+        return firebase.getDB().getDataBypath(metaDataPath);
+      }).then(storyMetaData => {
+        storyMetaData = storyMetaData.val();
         this.setState({
-          editorHtml: story.blog_data,
-          selectedTag: story.blog_category,
-          title: story.blog_title,
-          publishDate: story.blog_publish_date,
-          description: story.blog_description,
-          storyId: storyId,
-          avatarUrl: story.blog_avatar_url,
+          editorHtml: storyData.blog_data,
+          selectedTag: storyMetaData.blog_category,
+          title: storyMetaData.blog_title,
+          publishDate: storyMetaData.blog_publish_date,
+          description: storyMetaData.blog_description,
+          avatarUrl: storyMetaData.blog_avatar_url,
           toUpdate: true,
-          blogState: blogState,
+          blogState: metaDataPath.split('/')[0],
           showLoader: false
         });
         this.attachQuillRefs();
-        this.generateBlobFile(story.blog_avatar_url);
+        this.generateBlobFile(storyMetaData.blog_avatar_url);
       }).catch(err => {
         console.log(err);
         this.setState({ showLoader: false });
@@ -219,63 +223,72 @@ class Editor extends Component {
     })
   }
 
+  successCallback = (successMessage) => {
+    message.success(successMessage);
+    this.setState({ showLoader: false });
+    this.props.history.goBack();
+  }
+
+  failureCallback = (err, errorMessage) => {
+    console.log(err);
+    message.error(errorMessage);
+    this.setState({ showLoader: false });
+  }
+
   publishBlog = (action, htmlString) => {
     let firebase = Firebase.getInstance();
     let user = firebase.getAuth().getCurrentUser();
     let storyPathTag = this.state.selectedTag.toLowerCase();
+    let titleToPath = Utils.replaceOccurences(this.state.title, " ", "-");
+    let contentPath = `blogdata/${titleToPath}`;
+    let firebaseDB = firebase.getDB();
     if (user) {
-      debugger;
-      let path = `${action}/${storyPathTag}`;
+      let path = `${action}/${storyPathTag}/${titleToPath}`;
       let postData = {
         blog_title: this.state.title,
         blog_category: this.state.selectedTag,
-        blog_data: htmlString,
         blog_publish_date: this.state.publishDate,
         blog_description: this.state.description,
         blog_avatar_url: this.state.croppedImageUrl
       }
+      let blogContent = {};
+      blogContent['blog_data'] = htmlString;
       if (this.state.toUpdate) {
-        let oldPath = `${this.state.blogState}/${storyPathTag}/${this.state.storyId}`;
+        let oldPath = `${this.state.blogState}/${storyPathTag}/${titleToPath}`;
         if (action === this.state.blogState) {
-          firebase.getDB().updateBypath(oldPath, postData).then(() => {
-            message.success("Blog updated successfully");
-            this.setState({ showLoader: false });
-            this.props.history.goBack();
+          blogContent['blog_metadata'] = { blog_metadata: oldPath };
+          return firebaseDB.updateBypath(oldPath, postData).then(() => {
+            return firebaseDB.put(contentPath, blogContent);
+          }).then(() => {
+            this.successCallback("Blog updated successfully")
           }).catch(err => {
-            console.log(err);
-            message.error("Error in updating blog");
-            this.setState({ showLoader: false });
+            this.failureCallback(err, "Error in updating blog")
           })
         }
         else {
-          let newPath = this.state.blogState === "drafts" ? `published/${storyPathTag}/${this.state.storyId}` : `drafts/${storyPathTag}/${this.state.storyId}`;
-
-          firebase.getDB().updateBypath(oldPath, postData).then(() => {
-            firebase.getDB().moveData(oldPath, newPath).then(() => {
-              message.success("Blog updated successfully");
-              this.setState({ showLoader: false });
-              this.props.history.goBack();
-            }).catch(err => {
-              console.log(err);
-              message.error("Error in updating blog")
-              this.setState({ showLoader: false });
-            })
+          let newPath = this.state.blogState === "drafts" ?
+            `published/${storyPathTag}/${titleToPath}` :
+            `drafts/${storyPathTag}/${titleToPath}`;
+          blogContent['blog_metadata'] = { blog_metadata: newPath };
+          return firebaseDB.updateBypath(oldPath, postData).then(() => {
+            return firebaseDB.moveData(oldPath, newPath)
+          }).then(() => {
+            return firebaseDB.put(contentPath, blogContent);
+          }).then(() => {
+            this.successCallback("Blog updated successfully")
           }).catch(err => {
-            console.log(err);
-            message.error("Error in updating blog")
-            this.setState({ showLoader: false });
-          })
+            this.failureCallback(err, "Error in updating blog")
+          });
         }
       }
       else {
-        firebase.getDB().push(path, postData).then(() => {
-          message.success("Blog posted successfully");
-          this.setState({ showLoader: false });
-          this.props.history.goBack();
+        return firebaseDB.put(path, postData).then(() => {
+          blogContent['blog_metadata'] = { blog_metadata: path };
+          return firebaseDB.put(contentPath, blogContent);
+        }).then(() => {
+          this.successCallback("Blog created successfully");
         }).catch(err => {
-          console.log(err);
-          message.error("Error in creating blog");
-          this.setState({ showLoader: false });
+          this.failureCallback(err, "Error in creating blog")
         })
       }
     }
@@ -344,7 +357,7 @@ class Editor extends Component {
                       <Option value="beauty">Beauty</Option>
                       <Option value="travel">Travel</Option>
                     </Select>
-                    <TextArea placeholder="Enter one line description of your story" value={this.state.description} onChange={(e) => this.setState({ description: e.target.value })} />
+                    <TextArea placeholder="Enter a short description of your story" value={this.state.description} onChange={(e) => this.setState({ description: e.target.value })} />
                   </div>
                   <div className="editor__avatar">
                     <p>Cover for your story</p>

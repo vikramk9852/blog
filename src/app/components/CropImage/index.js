@@ -30,17 +30,23 @@ class CropImage extends PureComponent {
             }
             let that = this;
             this.setState({ cropImageModal: true, showLoader: true }, () => {
-                imageCompression(imageFile, options)
-                    .then(function (compressedFile) {
-                        console.log('compressedFile instanceof Blob', compressedFile); // true
-                        console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
-                        that.setState({
-                            crop: cropDimension && cropDimension.aspect,
-                            src: URL.createObjectURL(compressedFile),
-                            showLoader: false
-                        })
-                        // return uploadToServer(compressedFile); // write your own logic
+                let promise;
+                if (this.props.noCompress) {
+                    promise = Promise.resolve(imageFile);
+                }
+                else {
+                    promise = imageCompression(imageFile, options);
+                }
+                promise.then(function (compressedFile) {
+                    console.log('compressedFile instanceof Blob', compressedFile); // true
+                    console.log(`compressedFile size ${compressedFile.size / 1024 / 1024} MB`); // smaller than maxSizeMB
+                    that.setState({
+                        crop: cropDimension && cropDimension.aspect,
+                        src: URL.createObjectURL(compressedFile),
+                        showLoader: false
                     })
+                    // return uploadToServer(compressedFile); // write your own logic
+                })
                     .catch(function (error) {
                         console.log(error.message);
                     });
@@ -91,7 +97,7 @@ class CropImage extends PureComponent {
                                 aspectRatio={crop}
                                 guides={true}
                                 highlight={true}
-                                zoomable={false}
+                            // zoomable={false}
                             />
                         }
                     </div>

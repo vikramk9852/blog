@@ -146,7 +146,7 @@ class Profile extends Component {
 
                         </div>
                         <div className="cropimage__component">
-                            <CropImage ref="cropImage" setFileInfo={(profileImageBlob, profileImageUrl) => this.setProfileImgInfo(profileImageBlob, profileImageUrl)} />
+                            <CropImage ref="cropImage" noCompress={true} setFileInfo={(profileImageBlob, profileImageUrl) => this.setProfileImgInfo(profileImageBlob, profileImageUrl)} />
                         </div>
                         <p className="ql-size-large">Profile Details</p>
                         <div className="profile__input">

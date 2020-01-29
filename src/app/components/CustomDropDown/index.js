@@ -40,7 +40,7 @@ class LeftMenu extends Component {
             <div style={{ display: "inline" }}>
                 <Dropdown
                     overlay={
-                        <Menu onClick={this.handleClick} style={{ minWidth: "150px" }}>
+                        <Menu onClick={this.handleClick} defaultSelectedKeys={[this.props.defaultSelectedKeys]} style={{ minWidth: "150px" }}>
                             {this.renderMenuItems()}
                         </Menu>
                     }
