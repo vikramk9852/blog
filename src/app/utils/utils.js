@@ -20,6 +20,7 @@ class Utils {
     }
 
     static replaceOccurences(text, toReplace, toReplaceWith) {
+        text = text.trim();
         return text.split(toReplace).join(toReplaceWith);
     }
 

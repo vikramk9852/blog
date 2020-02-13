@@ -53,7 +53,7 @@ class AppRouter extends React.Component {
 	}
 
 	isLoggedIn = () => {
-		let url = this.props.location.pathname;
+		let url = this.props.history.location.pathname;
 		let firebase = Firebase.getInstance();
 		let reactState = this;
 		firebase.getAuth().checkStatus(function (user) {
@@ -77,7 +77,9 @@ class AppRouter extends React.Component {
 							<Loader />
 							:
 							<Content className="ui-container">
-								<div style={{ marginBottom: this.state.showHeader ? "7em" : "2em" }}>{this.state.showHeader && <Header handleClick={this.handleClick} />}</div>
+								<div style={{ marginBottom: this.state.showHeader ? "7em" : "2em" }}>
+									{this.state.showHeader && <Header handleClick={this.handleClick} />}
+								</div>
 								{this.state.noAccess ?
 									<NoAccess />
 									:

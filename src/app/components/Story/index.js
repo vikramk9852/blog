@@ -52,23 +52,11 @@ class Story extends Component {
             let metaDataPath = storyData.blog_metadata.blog_metadata;
             return firebase.getDB().getDataBypath(metaDataPath);
         }).then(res => {
-            let prev, firstChar;
             let blogData = storyData.blog_data;
             let storyMetaData = res.val();
             console.log(blogData, storyMetaData);
-            for (let index in blogData) {
-                index = parseInt(index);
-                if (prev === '>' && blogData[index].match(/[^\w]|_/) == null) {
-                    firstChar = blogData[index];
-                    blogData = blogData.slice(0, index) + blogData.slice(index + 1);
-                    console.log(blogData);
-                    break;
-                }
-                prev = blogData[index];
-            }
             this.setState({
                 title: storyMetaData.blog_title,
-                firstChar: firstChar,
                 content: blogData,
                 avatarUrl: storyMetaData.blog_avatar_url,
                 description: storyMetaData.blog_description,
@@ -125,11 +113,6 @@ class Story extends Component {
                             </div>
                         </div>
                         <div className="story__content">
-                            {this.state.firstChar &&
-                                <Avatar className="story__firstchar" size={79}>
-                                    {this.state.firstChar}
-                                </Avatar>
-                            }
                             {ReactHtmlParser(this.state.content)}
                         </div>
                     </div>

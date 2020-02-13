@@ -66,7 +66,7 @@
     //   width: 100%;
     // }
     &-editor{
-      height: 60vh;
+      // height: 60vh;
     }
     &-container{
       border-radius: 0.5em;
@@ -78,6 +78,7 @@
   
   .ql-container {
     height: 20em;
+    overflow: hidden;
   }
 
   .editor__close__icon:hover{

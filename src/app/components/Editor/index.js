@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactQuill, { Quill } from 'react-quill';
+import { ImageResize } from 'quill-image-resize-module';
 import 'react-quill/dist/quill.snow.css';
 import Utils from '../../utils/utils';
 import './index.scss';
@@ -8,6 +9,7 @@ import Loader from '../Loader';
 import CropImage from '../../components/CropImage';
 import Firebase from '../../utils/firebase';
 const QuillImage = Quill.import('formats/image');
+Quill.register('modules/imageResize', ImageResize);
 
 
 const { Option } = Select;
@@ -28,10 +30,13 @@ class Editor extends Component {
           { 'indent': '-1' }, { 'indent': '+1' }, { 'align': [] }],
           [{ 'color': [] }, { 'background': [] }],
           ['link', 'image'],
-          ['clean']],
+          ['clean', 'undo']],
         handlers: {
           'image': this.imageHandler
         }
+      },
+      imageResize: {
+        displaySize: true,
       }
     }
     this.formats = [
@@ -77,7 +82,9 @@ class Editor extends Component {
         this.setState({
           editorHtml: storyData.blog_data,
           selectedTag: storyMetaData.blog_category,
+          initialTag: storyMetaData.blog_category,
           title: storyMetaData.blog_title,
+          initialTitle: storyMetaData.blog_title,
           publishDate: storyMetaData.blog_publish_date,
           description: storyMetaData.blog_description,
           avatarUrl: storyMetaData.blog_avatar_url,
@@ -239,7 +246,9 @@ class Editor extends Component {
     let firebase = Firebase.getInstance();
     let user = firebase.getAuth().getCurrentUser();
     let storyPathTag = this.state.selectedTag.toLowerCase();
+    let oldStoryPathTag = this.state.initialTag.toLowerCase();
     let titleToPath = Utils.replaceOccurences(this.state.title, " ", "-");
+    let oldTitleToPath = Utils.replaceOccurences(this.state.initialTitle, " ", "-");
     let contentPath = `blogdata/${titleToPath}`;
     let firebaseDB = firebase.getDB();
     if (user) {
@@ -253,33 +262,27 @@ class Editor extends Component {
       }
       let blogContent = {};
       blogContent['blog_data'] = htmlString;
+      debugger;
       if (this.state.toUpdate) {
-        let oldPath = `${this.state.blogState}/${storyPathTag}/${titleToPath}`;
-        if (action === this.state.blogState) {
-          blogContent['blog_metadata'] = { blog_metadata: oldPath };
-          return firebaseDB.updateBypath(oldPath, postData).then(() => {
-            return firebaseDB.put(contentPath, blogContent);
-          }).then(() => {
-            this.successCallback("Blog updated successfully")
-          }).catch(err => {
-            this.failureCallback(err, "Error in updating blog")
-          })
-        }
-        else {
-          let newPath = this.state.blogState === "drafts" ?
-            `published/${storyPathTag}/${titleToPath}` :
-            `drafts/${storyPathTag}/${titleToPath}`;
-          blogContent['blog_metadata'] = { blog_metadata: newPath };
-          return firebaseDB.updateBypath(oldPath, postData).then(() => {
+        let oldPath = `${this.state.blogState}/${oldStoryPathTag}/${oldTitleToPath}`;
+        let newPath = `${action}/${storyPathTag}/${titleToPath}`;
+        // if (action === this.state.blogState) {
+        //   newPath = this.state.blogState === "drafts" ?
+        //     `published/${storyPathTag}/${titleToPath}` :
+        //     `drafts/${storyPathTag}/${titleToPath}`;
+        // }
+        blogContent['blog_metadata'] = { blog_metadata: newPath };
+        return firebaseDB.updateBypath(oldPath, postData).then(() => {
+          if (oldPath !== newPath)
             return firebaseDB.moveData(oldPath, newPath)
-          }).then(() => {
-            return firebaseDB.put(contentPath, blogContent);
-          }).then(() => {
-            this.successCallback("Blog updated successfully")
-          }).catch(err => {
-            this.failureCallback(err, "Error in updating blog")
-          });
-        }
+          return Promise.resolve();
+        }).then(() => {
+          return firebaseDB.put(contentPath, blogContent);
+        }).then(() => {
+          this.successCallback("Blog updated successfully")
+        }).catch(err => {
+          this.failureCallback(err, "Error in updating blog")
+        });
       }
       else {
         return firebaseDB.put(path, postData).then(() => {

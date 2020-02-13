@@ -45,11 +45,9 @@ class CropImage extends PureComponent {
                         src: URL.createObjectURL(compressedFile),
                         showLoader: false
                     })
-                    // return uploadToServer(compressedFile); // write your own logic
-                })
-                    .catch(function (error) {
-                        console.log(error.message);
-                    });
+                }).catch(function (error) {
+                    console.log(error.message);
+                });
             });
         }
     };
