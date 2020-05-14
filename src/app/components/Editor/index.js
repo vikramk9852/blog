@@ -246,9 +246,7 @@ class Editor extends Component {
     let firebase = Firebase.getInstance();
     let user = firebase.getAuth().getCurrentUser();
     let storyPathTag = this.state.selectedTag.toLowerCase();
-    let oldStoryPathTag = this.state.initialTag.toLowerCase();
     let titleToPath = Utils.replaceOccurences(this.state.title, " ", "-");
-    let oldTitleToPath = Utils.replaceOccurences(this.state.initialTitle, " ", "-");
     let contentPath = `blogdata/${titleToPath}`;
     let firebaseDB = firebase.getDB();
     if (user) {
@@ -264,6 +262,8 @@ class Editor extends Component {
       blogContent['blog_data'] = htmlString;
       debugger;
       if (this.state.toUpdate) {
+        let oldStoryPathTag = this.state.initialTag.toLowerCase();
+        let oldTitleToPath = Utils.replaceOccurences(this.state.initialTitle, " ", "-");
         let oldPath = `${this.state.blogState}/${oldStoryPathTag}/${oldTitleToPath}`;
         let newPath = `${action}/${storyPathTag}/${titleToPath}`;
         // if (action === this.state.blogState) {

@@ -109,7 +109,7 @@ class Story extends Component {
                                 </div>
                             </div>
                             <div className="story__cover__image">
-                                <img align="center" src={this.state.avatarUrl} alt="cover_image" />
+                                <img className="story__avatarImg" align="center" src={this.state.avatarUrl} alt="cover_image" />
                             </div>
                         </div>
                         <div className="story__content">
